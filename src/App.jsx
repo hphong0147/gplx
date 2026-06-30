@@ -37,6 +37,7 @@ export default function App() {
   const [isResultsOpen, setIsResultsOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const [resetConfirm, setResetConfirm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // --- New Exam Mode States ---
   const [activeTab, setActiveTab] = useState('practice'); // 'practice' | 'exam'
@@ -234,6 +235,7 @@ export default function App() {
     setCurrentQuestionIndex(0);
     setCurrentPage(1);
     setFilterMode('all');
+    setSearchQuery('');
     setIsResultsOpen(false);
     showToast('Đã làm mới toàn bộ bài thi!');
   };
@@ -252,6 +254,7 @@ export default function App() {
     setCurrentQuestionIndex(0);
     setCurrentPage(1);
     setFilterMode('all');
+    setSearchQuery('');
     setIsResultsOpen(false);
     showToast('Bắt đầu bài thi mới!');
   };
@@ -259,6 +262,14 @@ export default function App() {
   // Filter logic
   const getFilteredQuestions = () => {
     return questionBank.filter(q => {
+      // Filter by search query
+      if (searchQuery.trim() !== '') {
+        const query = searchQuery.toLowerCase().trim();
+        const matchesText = q.questionText.toLowerCase().includes(query);
+        const matchesId = q.id.toString() === query;
+        if (!matchesText && !matchesId) return false;
+      }
+
       const state = answers[q.id];
       if (filterMode === 'all') return true;
       if (filterMode === 'unanswered') return !state.isChecked;
@@ -272,8 +283,9 @@ export default function App() {
 
   // Jump to specific question
   const jumpToQuestion = (questionId) => {
-    // Reset filter to show the target question
+    // Reset filter and search to show the target question
     setFilterMode('all');
+    setSearchQuery('');
     
     // Find index in overall questions list
     const indexInAll = questionBank.findIndex(q => q.id === questionId);
@@ -719,13 +731,47 @@ export default function App() {
                 </div>
               </div>
 
+              {/* Search Bar */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm câu hỏi theo từ khóa hoặc số câu (ví dụ: 'đường ưu tiên', '72')..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                    setCurrentQuestionIndex(0);
+                  }}
+                  className="w-full pl-11 pr-10 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
+                />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                {searchQuery && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setCurrentPage(1);
+                      setCurrentQuestionIndex(0);
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-400 dark:text-slate-300 transition-colors"
+                  >
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+
               {/* Questions Container */}
               <div className="flex flex-col gap-6">
                 {filteredQuestions.length === 0 ? (
                   <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-12 text-center shadow-sm">
                     <div className="text-4xl mb-4">🔍</div>
                     <h3 className="font-bold text-lg mb-1 text-slate-700 dark:text-slate-200">Không tìm thấy câu hỏi phù hợp</h3>
-                    <p className="text-sm text-slate-400 dark:text-slate-500">Hãy thay đổi bộ lọc hoặc bắt đầu làm bài để theo dõi tiến trình.</p>
+                    <p className="text-sm text-slate-400 dark:text-slate-500">Hãy thay đổi từ khóa tìm kiếm hoặc bộ lọc.</p>
                   </div>
                 ) : viewMode === 'single' ? (
                   // Single question view
