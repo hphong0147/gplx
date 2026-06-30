@@ -1,0 +1,39 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvsca
+*.njsproj
+*.sln
+*.sw?
+
+# Temporary files
+*.pyc
+__pycache__/
+C:/Users/haiph/.gemini/antigravity/brain/5e59e8e7-56a7-4f9f-bce6-44479101e905/scratch/
+*output.txt
+*report.json
+check_anomalies.py
+dump_pdf_pages.py
+debug_q72.py
+debug_q170.py
+debug_q155.py
+list_page65_images.py
+find_all_discrepancies.py
+patch_questions.py
